@@ -47,7 +47,6 @@ const tick = () => {
 
   // Update objects
   mesh.rotation.y = elapsedTime;
-  mesh.rotation.x = elapsedTime;
 
   // Render
   renderer.render(scene, camera);
