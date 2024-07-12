@@ -113,6 +113,15 @@ gui.add(material.iridescenceThicknessRange, '0').min(1).max(1000).step(1)
 gui.add(material.iridescenceThicknessRange, '1').min(1).max(1000).step(1)
  */
 
+// Transmission
+/* material.transmission = 1
+material.ior = 1.5
+material.thickness = 0.5
+
+gui.add(material, 'transmission').min(0).max(1).step(0.0001)
+gui.add(material, 'ior').min(1).max(10).step(0.0001)
+gui.add(material, 'thickness').min(0).max(1).step(0.0001) */
+
 //const material = new THREE.MeshBasicMaterial({ map: doorColorTexture })
 const sphere = new THREE.Mesh(
     new THREE.SphereGeometry(0.5, 64, 64),
