@@ -31,7 +31,7 @@ const floorARMTexture = textureLoader.load(
   "./floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_arm_1k.jpg"
 );
 const floorNormalTexture = textureLoader.load(
-  "./floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_nor_1k.jpg"
+  "./floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_nor_gl_1k.jpg"
 );
 const floorDisplacementTexture = textureLoader.load(
   "./floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_disp_1k.jpg"
@@ -147,12 +147,6 @@ doorColorTexture.colorSpace = THREE.SRGBColorSpace;
 /**
  * House
  */
-// Temporary sphere
-const sphere = new THREE.Mesh(
-  new THREE.SphereGeometry(1, 32, 32),
-  new THREE.MeshStandardMaterial({ roughness: 0.7 })
-);
-scene.add(sphere);
 
 // FLOOR
 const floor = new THREE.Mesh(
@@ -186,8 +180,8 @@ const walls = new THREE.Mesh(
   new THREE.MeshStandardMaterial({
     map: wallColorTexture,
     aoMap: wallARMTexture,
-    roughnessMapap: wallARMTexture,
-    metalnessMapap: wallARMTexture,
+    roughnessMap: wallARMTexture,
+    metalnessMap: wallARMTexture,
     normalMap: wallNormalTexture,
   })
 );
@@ -200,8 +194,8 @@ const roof = new THREE.Mesh(
   new THREE.MeshStandardMaterial({
     map: roofColorTexture,
     aoMap: roofARMTexture,
-    roughnessMapap: roofARMTexture,
-    metalnessMapap: roofARMTexture,
+    roughnessMap: roofARMTexture,
+    metalnessMap: roofARMTexture,
     normalMap: roofNormalTexture,
   })
 );
@@ -236,8 +230,8 @@ const bushMaterial = new THREE.MeshStandardMaterial({
   color: "#ccffcc",
   map: bushColorTexture,
   aoMap: bushARMTexture,
-  roughnessMapap: bushARMTexture,
-  metalnessMapap: bushARMTexture,
+  roughnessMap: bushARMTexture,
+  metalnessMap: bushARMTexture,
   normalMap: bushNormalTexture,
 });
 
@@ -268,8 +262,8 @@ const graveGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.2);
 const graveMaterial = new THREE.MeshStandardMaterial({
   map: graveColorTexture,
   aoMap: graveARMTexture,
-  roughnessMapap: graveARMTexture,
-  metalnessMapap: graveARMTexture,
+  roughnessMap: graveARMTexture,
+  metalnessMap: graveARMTexture,
   normalMap: graveNormalTexture,
 });
 
@@ -298,18 +292,18 @@ for (let i = 0; i < 30; i++) {
  * Lights
  */
 // Ambient light
-const ambientLight = new THREE.AmbientLight("#ffffff", 0.5); // ('#86cdff', 0.275)
+const ambientLight = new THREE.AmbientLight("#86cdff", 0.275);
 scene.add(ambientLight);
 
 // Directional light
-const directionalLight = new THREE.DirectionalLight("#ffffff", 1.5); // ('#86cdff', 1)
+const directionalLight = new THREE.DirectionalLight("#86cdff", 1);
 directionalLight.position.set(3, 2, -8);
 scene.add(directionalLight);
 
 //Door Light
-/* const doorLight = new THREE.PointLight('#ff7d46', 5)
-doorLight.position.set(0, 2.2, 2.5)
-house.add(doorLight) */
+const doorLight = new THREE.PointLight("#ff7d46", 5);
+doorLight.position.set(0, 2.2, 2.5);
+house.add(doorLight);
 
 //Ghosts
 const ghost1 = new THREE.PointLight("#8800ff", 6);
@@ -366,6 +360,29 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+/*
+    SHADOWS
+*/
+// RENDERER
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+// cast
+directionalLight.castShadow = true;
+ghost1.castShadow = true;
+ghost2.castShadow = true;
+ghost3.castShadow = true;
+
+walls.castShadow = true;
+walls.receiveShadow = true;
+roof.castShadow = true;
+floor.receiveShadow = true;
+
+for (const grave of graves.children) {
+  grave.castShadow = true;
+  grave.receiveShadow = true;
+}
 
 /**
  * Animate
