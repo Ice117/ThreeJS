@@ -56,6 +56,22 @@ scene.add(mesh1, mesh2, mesh3);
 const sectionMeshes = [mesh1, mesh2, mesh3];
 
 /*
+    Particles
+*/
+// Geometry
+const particlesCount = 200;
+const positions = new Float32Array(particlesCount * 3);
+
+for (let i = 0; i < particlesCount; i++) {
+  positions[i * 3 + 0] = Math.random();
+  positions[i * 3 + 1] = Math.random();
+  positions[i * 3 + 2] = Math.random();
+}
+
+const particlesGeometry = new THREE.BufferGeometry()
+particlesGeometry.setAttribute('position', new THREE.BufferAttribute(particlesGeometry, 3))
+
+/*
     Lights
  */
 const directionalLight = new THREE.DirectionalLight("#ffffff", 3);
@@ -88,8 +104,8 @@ window.addEventListener("resize", () => {
  * Camera
  */
 // Group
-const cameraGroup = new THREE.Group()
-scene.add(cameraGroup)
+const cameraGroup = new THREE.Group();
+scene.add(cameraGroup);
 
 // Base camera
 const camera = new THREE.PerspectiveCamera(
@@ -120,7 +136,7 @@ let scrollY = window.scrollY;
 window.addEventListener("scroll", () => {
   scrollY = window.scrollY;
 
-  console.log(scrollY)
+  console.log(scrollY);
 });
 
 /*
@@ -134,27 +150,29 @@ window.addEventListener("mousemove", (event) => {
   cursor.x = event.clientX / sizes.width - 0.5;
   cursor.y = event.clientY / sizes.height - 0.5;
 
-  console.log(cursor)
+  console.log(cursor);
 });
 
 /**
  * Animate
  */
 const clock = new THREE.Clock();
-let previousTime = 0
+let previousTime = 0;
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
-  const deltaTime = elapsedTime - previousTime
-  previousTime = elapsedTime
+  const deltaTime = elapsedTime - previousTime;
+  previousTime = elapsedTime;
 
   // Animate Camera
-  camera.position.y = -scrollY / sizes.height * objectsDistance;
+  camera.position.y = (-scrollY / sizes.height) * objectsDistance;
 
   const parallaxX = cursor.x * 0.5;
-  const parallaxY = - cursor.y * 0.5;
-  cameraGroup.position.x += (parallaxX - cameraGroup.position.x) * 2 * deltaTime;
-  cameraGroup.position.y += (parallaxY - cameraGroup.position.y) * 2 * deltaTime;
+  const parallaxY = -cursor.y * 0.5;
+  cameraGroup.position.x +=
+    (parallaxX - cameraGroup.position.x) * 2 * deltaTime;
+  cameraGroup.position.y +=
+    (parallaxY - cameraGroup.position.y) * 2 * deltaTime;
 
   // Animate meshes
   for (const mesh of sectionMeshes) {
