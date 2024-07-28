@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import GUI from "lil-gui";
+import gsap from "gsap";
 
 /**
  * Debug
@@ -155,10 +156,18 @@ window.addEventListener("scroll", () => {
   const newSection = Math.round(scrollY / sizes.height)
 
   if(newSection != currentSection){
+    
     currentSection = newSection
 
     gsap.to(
-        sectionsMeshes[currentSection].rotation
+        sectionMeshes[currentSection].rotation,
+        {
+            duration:1.5,
+            ease: 'power2.inOut',
+            x: '+=6',
+            y: '+=3',
+            z: '+=1.5'
+        }
     )
   }
 });
@@ -200,8 +209,8 @@ const tick = () => {
 
   // Animate meshes
   for (const mesh of sectionMeshes) {
-    mesh.rotation.x = elapsedTime * 0.5;
-    mesh.rotation.y = elapsedTime * 0.52;
+    mesh.rotation.x += deltaTime * 0.5;
+    mesh.rotation.y += deltaTime * 0.52;
   }
 
   // Render
