@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import GUI from "lil-gui";
 
 /**
@@ -18,15 +19,19 @@ const scene = new THREE.Scene();
 /**
  * Models
  */
+const dracoLoader = new DRACOLoader()
 const gltfLoader = new GLTFLoader();
 
 gltfLoader.load(
   "/models/FlightHelmet/glTF/FlightHelmet.gltf",
   (gltf) => {
-    const children = [...gltf.scene.children];
+/*     const children = [...gltf.scene.children];
+
     for (const child of children) {
       scene.add(child);
-    }
+    } */
+
+    scene.add(gltf.scene)
   },
   (progress) => {
     console.log("progress");
