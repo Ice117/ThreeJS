@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import GUI from "lil-gui";
 
 /**
@@ -91,6 +92,24 @@ window.addEventListener("mousemove", (event) => {
   mouse.y = -((event.clientY / sizes.height) * 2 - 1);
 });
 
+window.addEventListener("click", () => {
+  if (currentIntersect) {
+    switch (currentIntersect.object) {
+      case object1:
+        console.log("click on object 1");
+        break;
+
+      case object2:
+        console.log("click on object 2");
+        break;
+
+      case object3:
+        console.log("click on object 3");
+        break;
+    }
+  }
+});
+
 /**
  * Camera
  */
@@ -118,9 +137,48 @@ renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 /**
+ * Models
+ */
+const gltfLoader = new GLTFLoader();
+
+gltfLoader.load(
+  "/models/Duck/glTF-Binary/Duck.glb",
+  (gltf) => {
+    scene.add(gltf.scene);
+  },
+  (progress) => {
+    console.log("progress");
+  },
+  (error) => {
+    console.log("error");
+  }
+);
+
+/**
+ * Lights
+ */
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 2.4);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8);
+directionalLight.castShadow = true;
+directionalLight.shadow.mapSize.set(1024, 1024);
+directionalLight.shadow.camera.far = 15;
+directionalLight.shadow.camera.left = -7;
+directionalLight.shadow.camera.top = 7;
+directionalLight.shadow.camera.right = 7;
+directionalLight.shadow.camera.bottom = -7;
+directionalLight.position.set(5, 5, 5);
+scene.add(directionalLight);
+
+
+/**
  * Animate
  */
 const clock = new THREE.Clock();
+
+let currentIntersect = null;
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
@@ -131,7 +189,7 @@ const tick = () => {
   object3.position.y = Math.sin(elapsedTime * 1.5) * 1.5;
 
   // Raycaster
-  raycaster.setFromCamera(mouse, camera)
+  raycaster.setFromCamera(mouse, camera);
 
   /*const rayOrigin = new THREE.Vector3(- 3, 0, 0)
     const rayDirection = new THREE.Vector3(10, 0, 0)
@@ -139,16 +197,30 @@ const tick = () => {
 
     raycaster.set(rayOrigin, rayDirection) */
 
-    const objectsToTest = [object1, object2, object3]
-    const intersects = raycaster.intersectObjects(objectsToTest)
-    
-    for(const object of objectsToTest){
-        object.material.color.set('#ff0000')
+  const objectsToTest = [object1, object2, object3];
+  const intersects = raycaster.intersectObjects(objectsToTest);
+
+  for (const object of objectsToTest) {
+    object.material.color.set("#ff0000");
+  }
+
+  for (const intersect of intersects) {
+    intersect.object.material.color.set("#0000ff");
+  }
+
+  if (intersects.length) {
+    if (!currentIntersect) {
+      console.log("mouse enter");
     }
 
-    for(const intersect of intersects){
-        intersect.object.material.color.set('#0000ff')
+    currentIntersect = intersects[0];
+  } else {
+    if (currentIntersect) {
+      console.log("mouse leave");
     }
+
+    currentIntersect = null;
+  }
 
   // Update controls
   controls.update();
