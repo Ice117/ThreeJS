@@ -1,12 +1,15 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import GUI from "lil-gui";
 
 /**
  * Loaders
  */
 const gltfLoader = new GLTFLoader();
+const cubeTextureLoader = new THREE.CubeTextureLoader();
+const rgbeLoader = new RGBELoader();
 
 /**
  * Base
@@ -21,12 +24,65 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 
 /**
+ * Enviroment map
+ */
+scene.environmentIntensity = 2;
+scene.backgroundBlurriness = 0;
+scene.backgroundIntensity = 1;
+
+gui.add(scene, "environmentIntensity").min(0).max(10).step(0.001);
+gui.add(scene, "backgroundBlurriness").min(0).max(1).step(0.001);
+gui.add(scene, "backgroundIntensity").min(0).max(10).step(0.001);
+gui
+  .add(scene.backgroundRotation, "y")
+  .min(0)
+  .max(Math.PI * 2)
+  .step(0.001)
+  .name("Background Y");
+gui
+  .add(scene.environmentRotation, "y")
+  .min(0)
+  .max(Math.PI * 2)
+  .step(0.001)
+  .name("Environment Y");
+
+// LDR
+/* const environmentMap = cubeTextureLoader.load([
+  '/environmentMaps/0/px.png',
+  '/environmentMaps/0/nx.png',
+  '/environmentMaps/0/py.png',
+  '/environmentMaps/0/ny.png',
+  '/environmentMaps/0/pz.png',
+  '/environmentMaps/0/nz.png'
+])
+
+scene.environment = environmentMap
+scene.background = environmentMap
+ */
+
+//RGBE
+
+rgbeLoader.load("/environmentMaps/0/2k.hdr", (environmentMap) => {
+  environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+  
+  scene.background = environmentMap;
+  scene.environment = environmentMap;
+});
+
+
+/**
  * Torus Knot
  */
 const torusKnot = new THREE.Mesh(
   new THREE.TorusKnotGeometry(1, 0.4, 100, 16),
-  new THREE.MeshBasicMaterial()
+  new THREE.MeshStandardMaterial({
+    roughness: 0.3,
+    metalness: 1,
+    color: 0xaaaaaa,
+  })
 );
+
+torusKnot.position.x = -4;
 torusKnot.position.y = 4;
 scene.add(torusKnot);
 
@@ -34,7 +90,8 @@ scene.add(torusKnot);
  * Models
  */
 
-gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.glt", (gltf) => {
+gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf", (gltf) => {
+  gltf.scene.scale.set(10, 10, 10);
   scene.add(gltf.scene);
 });
 
