@@ -31,7 +31,8 @@ const updateAllMaterials = () =>
     {
         if(child.isMesh)
         {
-            // Activate shadow here
+            child.castShadow = true
+            child.receiveShadow = true
         }
     })
 }
@@ -70,6 +71,8 @@ gui.add(directionalLight.position, 'z').min(- 10).max(10).step(0.001).name('ligh
 
 //shadows
 directionalLight.castShadow = true
+directionalLight.shadow.camera.far = 15
+directionalLight.shadow.mapSize.set(1024, 1024)
 gui.add(directionalLight, 'castShadow')
 
 // Helper
@@ -78,6 +81,8 @@ scene.add(directionalLightHelper)
 
 // Target
 directionalLight.target.position.set(0, 4, 0)
+directionalLight.target.updateWorldMatrix()
+
 
 
 /**
