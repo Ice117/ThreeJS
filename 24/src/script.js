@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+import { EXRLoader } from "three/addons/loaders/EXRLoader.js";
+import { GroundedSkybox } from "three/addons/objects/GroundedSkybox.js";
 import GUI from "lil-gui";
 
 /**
@@ -10,6 +12,7 @@ import GUI from "lil-gui";
 const gltfLoader = new GLTFLoader();
 const cubeTextureLoader = new THREE.CubeTextureLoader();
 const rgbeLoader = new RGBELoader();
+const textureLoader = new THREE.TextureLoader();
 
 /**
  * Base
@@ -61,14 +64,87 @@ scene.background = environmentMap
  */
 
 //RGBE
-
+/* 
 rgbeLoader.load("/environmentMaps/0/2k.hdr", (environmentMap) => {
+  environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+
+  scene.background = environmentMap;
+  scene.environment = environmentMap;
+}); */
+
+// HDR (EXR) equirectangular
+/* exrLoader.load("/environmentMaps/nvidiaCanvas-4k.exr", (environmentMap) => {
+  environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+
+  scene.background = environmentMap;
+  scene.environment = environmentMap;
+}); */
+
+// // HDR (EXR) equirectangular
+/* exrLoader.load("/environmentMaps/nvidiaCanvas-4k.exr", (environmentMap) => {
   environmentMap.mapping = THREE.EquirectangularReflectionMapping;
   
   scene.background = environmentMap;
   scene.environment = environmentMap;
 });
+*/
 
+// LDR equirectangular
+/* const environmentMap = textureLoader.load(
+  "/environmentMaps/blockadesLabsSkybox/interior_views_cozy_wood_cabin_with_cauldron_and_p.jpg"
+);
+environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+environmentMap.colorSpace = THREE.SRGBColorSpace;
+
+scene.background = environmentMap;
+scene.environment = environmentMap;
+*/
+
+// Ground Skybox
+/* rgbeLoader.load("/environmentMaps/2/2k.hdr", (environmentMap) => {
+  environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+  scene.environment = environmentMap;
+
+  //Skybox
+  const skybox = new GroundedSkybox(environmentMap, 15, 70)
+  skybox.position.y = 15
+  scene.add(skybox)
+
+  gui.add(skybox, 'radius', 1, 200, 0.1).name('skyboxRadius')
+  gui.add(skybox, 'height', 1, 200, 0.1).name('skyboxHeight')
+}); */
+
+/**
+ * Real Time environment map
+ */
+
+const environmentMap = textureLoader.load(
+  "/environmentMaps/blockadesLabsSkybox/interior_views_cozy_wood_cabin_with_cauldron_and_p.jpg"
+);
+environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+environmentMap.colorSpace = THREE.SRGBColorSpace;
+
+scene.background = environmentMap;
+
+// Holy Donut
+const holyDonut = new THREE.Mesh(
+  new THREE.TorusGeometry(8, 0.5),
+  new THREE.MeshBasicMaterial({ color: new THREE.Color(10, 4, 2) })
+);
+holyDonut.layers.enable(1);
+holyDonut.position.y = 3.5;
+scene.add(holyDonut);
+
+// Cube render
+const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
+  type: THREE.FloatType,
+});
+
+scene.environment = cubeRenderTarget.texture;
+
+//Cube camera
+const cubeCamera = new THREE.CubeCamera(0.1, 100, cubeRenderTarget);
+cubeCamera.layers.set(1);
 
 /**
  * Torus Knot
@@ -76,7 +152,7 @@ rgbeLoader.load("/environmentMaps/0/2k.hdr", (environmentMap) => {
 const torusKnot = new THREE.Mesh(
   new THREE.TorusKnotGeometry(1, 0.4, 100, 16),
   new THREE.MeshStandardMaterial({
-    roughness: 0.3,
+    roughness: 0,
     metalness: 1,
     color: 0xaaaaaa,
   })
@@ -151,6 +227,13 @@ const clock = new THREE.Clock();
 const tick = () => {
   // Time
   const elapsedTime = clock.getElapsedTime();
+
+  // Real time environment
+  if (holyDonut) {
+    holyDonut.rotation.x = elapsedTime;
+
+    cubeCamera.update(renderer, scene);
+  }
 
   // Update controls
   controls.update();
