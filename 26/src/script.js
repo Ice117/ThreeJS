@@ -1,5 +1,11 @@
 class Robot {
-    americaYA(){
+    constructor()
+    {
+        console.log('AmericaYAA')
+    }
+
+    sayHi()
+    {
         console.log('Hallo! :D')
     }
 }
