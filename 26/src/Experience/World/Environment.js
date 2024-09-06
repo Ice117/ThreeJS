@@ -5,8 +5,11 @@ export default class Environment {
   constructor() {
     this.experience = new Experience();
     this.scene = this.experience.scene;
+    this.resources = this.experience.resources;
 
     this.setSunLight();
+    this.setEnvironmentMap();
+    
   }
 
   setSunLight() {
@@ -17,5 +20,14 @@ export default class Environment {
     this.setSunLight.shadow.normalBias = 0.05;
     this.setSunLight.position.set(3.5, 2, -1.25);
     this.scene.add(this.setSunLight);
+  }
+
+  setEnvironmentMap(){
+    this.environmentMap = {}
+    this.environmentMap.intensity = 0.4
+    this.environmentMap.texture = this.resources.items.environmentMapTexture
+    this.environmentMap.texture.colorSpace = THREE.SRGBColorSpace
+    
+    this.scene.environment = this.environmentMap.texture
   }
 }
