@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import * as THREE from "three";
 import Experience from "../Experience";
 
 export default class Environment {
@@ -9,7 +9,6 @@ export default class Environment {
 
     this.setSunLight();
     this.setEnvironmentMap();
-    
   }
 
   setSunLight() {
@@ -22,12 +21,26 @@ export default class Environment {
     this.scene.add(this.setSunLight);
   }
 
-  setEnvironmentMap(){
-    this.environmentMap = {}
-    this.environmentMap.intensity = 0.4
-    this.environmentMap.texture = this.resources.items.environmentMapTexture
-    this.environmentMap.texture.colorSpace = THREE.SRGBColorSpace
-    
-    this.scene.environment = this.environmentMap.texture
+  setEnvironmentMap() {
+    this.environmentMap = {};
+    this.environmentMap.intensity = 0.4;
+    this.environmentMap.texture = this.resources.items.environmentMapTexture;
+    this.environmentMap.texture.colorSpace = THREE.SRGBColorSpace;
+
+    this.scene.environment = this.environmentMap.texture;
+
+    this.environmentMap.updateMaterials = () => {
+      this.scene.traverse((child) => {
+        if (
+          child instanceof THREE.Mesh &&
+          child.material instanceof THREE.MeshStandardMaterial
+        ) {
+          child.material.envMap = this.environmentMap.texture;
+          child.material.envMapIntensity = this.environmentMap.intensity;
+          child.material.needsUpdate = true;
+        }
+      });
+    };
+    this.environmentMap.updateMaterials();
   }
 }
